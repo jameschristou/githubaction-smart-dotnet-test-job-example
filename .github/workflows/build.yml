@@ -23,7 +23,7 @@ jobs:
           dotnet build ./SampleTests/SampleTests.csproj --configuration Release --no-restore
 
       - name: Get failed tests
-        uses: jameschristou/actions-get-failed-tests-from-artifacts@aaf8bc7de9163bd70f99e5c1d6e84b41c33ca336
+        uses: jameschristou/actions-get-failed-tests-from-artifacts@6a0e8b221e3d26574aa576682079244b7483410e
         id: get_failed_tests
         with:
             name_of_the_test_run: "Test SampleTests"

@@ -23,10 +23,12 @@ jobs:
           dotnet build ./SampleTests/SampleTests.csproj --configuration Release --no-restore
 
       - name: Get failed tests
-        uses: jameschristou/actions-get-failed-tests-from-artifacts@127192841d3447c9f6b1ad37f6d9fcb089b560ef
+        uses: jameschristou/actions-get-failed-tests-from-artifacts@a6ebed1ef9185aa9512e711353e4b9796813bfbb
         id: get_failed_tests
         with:
             name_of_the_test_run: "Test SampleTests"
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            repo_name: ${{ github.event.repository.name }}
 
       - name: Update test filter
         id: update_test_filter

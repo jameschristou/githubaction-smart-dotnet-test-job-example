@@ -1,5 +1,3 @@
-﻿using Xunit;
-
 namespace SampleTests
 {
     public class Tests

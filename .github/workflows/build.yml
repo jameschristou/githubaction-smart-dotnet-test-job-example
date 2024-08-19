@@ -5,7 +5,7 @@ on: [push]
 jobs:
 
   test:
-    name: Test SampleTests
+    name: TestSampleTests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,10 +23,10 @@ jobs:
           dotnet build ./SampleTests/SampleTests.csproj --configuration Release --no-restore
 
       - name: Get failed tests
-        uses: jameschristou/actions-get-failed-tests-from-artifacts@b8e00bb3c219e541b7e08fe1777c6ebaefa61df3
+        uses: jameschristou/actions-get-failed-tests-from-artifacts@879630612ccf117b41256c1d1bf89ab80c8ecf11
         id: get_failed_tests
         with:
-            name_of_the_test_run: "Test SampleTests"
+            run_name: "TestSampleTests"
             github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update test filter
@@ -53,7 +53,7 @@ jobs:
 
       - name: Test SampleTests
         run: |
-          dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{steps.update_test_filter.outputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=testresults-attempt-${{github.run_attempt}}.xml'
+          dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{steps.update_test_filter.outputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=TestSampleTests-attempt-${{github.run_attempt}}.xml'
 
       - name: Upload test results
         if: always()

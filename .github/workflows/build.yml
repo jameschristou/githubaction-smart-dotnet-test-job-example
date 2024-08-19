@@ -22,12 +22,40 @@ jobs:
         run: |
           dotnet build ./SampleTests/SampleTests.csproj --configuration Release --no-restore
 
-      - name: Get failed tests
-        uses: jameschristou/actions-get-failed-tests-from-artifacts@0061dd624be3dab5ea6d24d3c8f8061122dcc117
-        id: get_failed_tests
+      # - name: Get failed tests
+      #   uses: jameschristou/actions-get-failed-tests-from-artifacts@0061dd624be3dab5ea6d24d3c8f8061122dcc117
+      #   id: get_failed_tests
+      #   with:
+      #       run_name: "TestSampleTests" # Eventually get TestSampleTests as input
+      #       github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get previous run attempt
+        id: get-previous-run-attempt
+        run:  |
+            current_run_attempt=${{github.run_attempt}}
+            previous_run_attempt=$(($current_run_attempt - 1))
+            echo "previous_run_attempt=$previous_run_attempt" >> $GITHUB_OUTPUT
+
+      - name: Get name of previous test results archive
+        id: get-name-of-previous-test-results-archive
+        run:  |
+            file_name=TestSampleTests Test Results for Attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.zip
+            echo "file_name=$file_name" >> $GITHUB_OUTPUT
+
+      - name: Download previous test results archive
+        uses: actions/download-artifact@v4
         with:
-            run_name: "TestSampleTests" # Eventually get TestSampleTests as input
-            github_token: ${{ secrets.GITHUB_TOKEN }}
+            name: ${{steps.get-previous-run-attempt.outputs.file_name}}
+
+      - name: Unzip the test results archive
+        if: ${{ steps.get-name-of-previous-test-results-archive.outputs.previous_run_attempt != '0' }}
+        run:  |
+            unzip ${{steps.get-previous-run-attempt.outputs.file_name}}
+
+      - name: Extract names of failed tests
+        if: ${{ steps.get-name-of-previous-test-results-archive.outputs.previous_run_attempt != '0' }}
+        run:  |
+            xmllint --xpath '//UnitTestResult[contains(@outcome, "Failed")]/testName/text()' TestSampleTests-attempt-${{github.run_attempt}}.xml
 
       - name: Update test filter
         id: update_test_filter

@@ -26,7 +26,7 @@ jobs:
         uses: jameschristou/actions-get-failed-tests-from-artifacts@879630612ccf117b41256c1d1bf89ab80c8ecf11
         id: get_failed_tests
         with:
-            run_name: "TestSampleTests"
+            run_name: "TestSampleTests" # Eventually get TestSampleTests as input
             github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update test filter
@@ -53,11 +53,11 @@ jobs:
 
       - name: Test SampleTests
         run: |
-          dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{steps.update_test_filter.outputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=TestSampleTests-attempt-${{github.run_attempt}}.xml'
+          dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{steps.update_test_filter.outputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=TestSampleTests-attempt-${{github.run_attempt}}.xml' # Eventually get TestSampleTests as input
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
             name: Test Results for Attempt-${{github.run_attempt}}
-            path: ./SampleTests/TestResults/testresults-attempt-${{github.run_attempt}}.xml
+            path: ./SampleTests/TestResults/TestSampleTests-attempt-${{github.run_attempt}}.xml # Eventually get TestSampleTests as input

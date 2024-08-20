@@ -53,7 +53,8 @@ jobs:
         run:  |
             echo "${{steps.get-name-of-previous-test-results-archive.outputs.archive_name}}"
             echo "$(pwd)"
-            unzip "${{steps.get-name-of-previous-test-results-archive.outputs.archive_name}}.zip"
+            ls
+            unzip "'${{steps.get-name-of-previous-test-results-archive.outputs.archive_name}}.zip'"
 
       - name: Extract names of failed tests
         if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}

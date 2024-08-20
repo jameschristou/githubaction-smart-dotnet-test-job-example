@@ -52,7 +52,7 @@ jobs:
             name: ${{steps.get-name-of-previous-test-results-archive.outputs.archive_name}}
 
       - name: Extract names of failed tests
-        if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}
+        if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }} && success()
         run:  |
             sudo apt-get update
             sudo apt-get install libxml2-utils

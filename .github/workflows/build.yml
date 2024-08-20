@@ -57,7 +57,12 @@ jobs:
             sudo apt-get update
             sudo apt-get install libxml2-utils
             echo "Now ready to roll"
-            xmllint --xpath "//UnitTestResult/@testName" TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml 2>/dev/null
+            # xmllint doesn't properly support xml namespaces so in this case we just strip them out with sed
+            TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | \
+                sed -e 's/encoding="UTF-16"?>/encoding="UTF-8"?>/' | \
+                sed -e 's/xmlns="[^"]*"//g' | \
+                xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName"
+            #xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml 2>/dev/null
 
       - name: Update test filter
         id: update_test_filter

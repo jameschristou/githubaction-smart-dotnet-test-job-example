@@ -54,8 +54,9 @@ jobs:
       - name: Extract names of failed tests
         if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}
         run:  |
+            sudo apt-get install libxml2-utils
             #xmllint --xpath '//UnitTestResult[contains(@outcome, "Failed")]/testName/text()' TestSampleTests-attempt-${{github.run_attempt}}.xml
-            xmllint --xpath '//UnitTestResult[@outcome='NotExecuted']/@testName' TestSampleTests-attempt-${{github.previous_run_attempt}}.xml
+            xmllint --xpath '//UnitTestResult[@outcome='NotExecuted']/@testName' TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml
 
       - name: Update test filter
         id: update_test_filter

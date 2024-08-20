@@ -39,21 +39,21 @@ jobs:
       - name: Get name of previous test results archive
         id: get-name-of-previous-test-results-archive
         run:  |
-            file_name="TestSampleTests Test Results for Attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.zip"
-            echo "file_name=$file_name" >> $GITHUB_OUTPUT
+            archive_name="TestSampleTests Test Results for Attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}"
+            echo "archive_name=$archive_name" >> $GITHUB_OUTPUT
 
       - name: Download previous test results archive
         uses: actions/download-artifact@v4
         if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}
         with:
-            name: ${{steps.get-name-of-previous-test-results-archive.outputs.file_name}}
+            name: ${{steps.get-name-of-previous-test-results-archive.outputs.archive_name}}
 
       - name: Unzip the test results archive
         if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}
         run:  |
-            echo "${{steps.get-name-of-previous-test-results-archive.outputs.file_name}}"
+            echo "${{steps.get-name-of-previous-test-results-archive.outputs.archive_name}}"
             echo "$(pwd)"
-            unzip "${{steps.get-name-of-previous-test-results-archive.outputs.file_name}}"
+            unzip "${{steps.get-name-of-previous-test-results-archive.outputs.archive_name}}.zip"
 
       - name: Extract names of failed tests
         if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}

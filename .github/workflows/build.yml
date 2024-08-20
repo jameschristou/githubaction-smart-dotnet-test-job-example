@@ -22,13 +22,6 @@ jobs:
         run: |
           dotnet build ./SampleTests/SampleTests.csproj --configuration Release --no-restore
 
-      # - name: Get failed tests
-      #   uses: jameschristou/actions-get-failed-tests-from-artifacts@0061dd624be3dab5ea6d24d3c8f8061122dcc117
-      #   id: get_failed_tests
-      #   with:
-      #       run_name: "TestSampleTests" # Eventually get TestSampleTests as input
-      #       github_token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Get previous run attempt
         id: get-previous-run-attempt
         run:  |
@@ -59,7 +52,7 @@ jobs:
             sudo apt-get install libxml2-utils
 
             # xmllint doesn't properly support xml namespaces so in this case we just strip them out with sed
-            sed -e 's/xmlns="[^"]*"//g' TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" -
+            sed -e 's/xmlns="[^"]*"//g' TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | xmllint --xpath "string(//UnitTestResult[@outcome='Failed']/@testName)" -
             #xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml 2>/dev/null
 
       - name: Update test filter

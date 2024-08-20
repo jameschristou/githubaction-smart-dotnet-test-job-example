@@ -40,6 +40,8 @@ jobs:
         id: get-name-of-previous-test-results-archive
         run:  |
             archive_name="TestSampleTests Test Results for Attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}"
+            echo "$(pwd)"
+            ls
             echo "archive_name=$archive_name" >> $GITHUB_OUTPUT
 
       - name: Download previous test results archive

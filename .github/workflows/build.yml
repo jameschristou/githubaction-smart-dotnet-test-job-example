@@ -40,7 +40,7 @@ jobs:
         id: get-name-of-previous-test-results-archive
         run:  |
             file_name=TestSampleTests Test Results for Attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.zip
-            echo "file_name='${{file_name}}'" >> $GITHUB_OUTPUT
+            echo "file_name=${{file_name}}" >> $GITHUB_OUTPUT
 
       - name: Download previous test results archive
         uses: actions/download-artifact@v4

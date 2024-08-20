@@ -44,34 +44,37 @@ jobs:
 
       - name: Download previous test results archive
         uses: actions/download-artifact@v4
-        if: ${{ steps.get-name-of-previous-test-results-archive.outputs.previous_run_attempt != '0' }}
+        if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}
         with:
             name: ${{steps.get-previous-run-attempt.outputs.file_name}}
 
       - name: Unzip the test results archive
-        if: ${{ steps.get-name-of-previous-test-results-archive.outputs.previous_run_attempt != '0' }}
+        if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}
         run:  |
             unzip ${{steps.get-previous-run-attempt.outputs.file_name}}
 
       - name: Extract names of failed tests
-        if: ${{ steps.get-name-of-previous-test-results-archive.outputs.previous_run_attempt != '0' }}
+        if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}
         run:  |
-            xmllint --xpath '//UnitTestResult[contains(@outcome, "Failed")]/testName/text()' TestSampleTests-attempt-${{github.run_attempt}}.xml
+            #xmllint --xpath '//UnitTestResult[contains(@outcome, "Failed")]/testName/text()' TestSampleTests-attempt-${{github.run_attempt}}.xml
+            xmllint --xpath '//UnitTestResult[@outcome='NotExecuted']/@testName' TestSampleTests-attempt-${{github.run_attempt}}.xml
 
       - name: Update test filter
         id: update_test_filter
         run: |
             tests_filter="Category!=Manual" # default if there's no failed tests from last attempt
 
-            if [ "${{steps.get_failed_tests.outputs.failed_tests}}" != "[]" ]; then
+            if [ "${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}" != "0" ]; then
                 echo "there are failed tests from last run attempt to process"
 
                 tests_filter=""
 
-                for failed_test in $(echo '${{steps.get_failed_tests.outputs.failed_tests}}' | jq -r '.[]'); do
-                    echo "Test found: ${failed_test}"
-                    tests_filter+="FullyQualifiedName=${failed_test}|"
-                done
+                # loop through results from XML parse
+
+                # for failed_test in $(echo '${{steps.get_failed_tests.outputs.failed_tests}}' | jq -r '.[]'); do
+                #     echo "Test found: ${failed_test}"
+                #     tests_filter+="FullyQualifiedName=${failed_test}|"
+                # done
 
                 tests_filter="${tests_filter%?}"  # Remove the trailing |
             fi

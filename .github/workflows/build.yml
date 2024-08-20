@@ -51,7 +51,8 @@ jobs:
       - name: Unzip the test results archive
         if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}
         run:  |
-            unzip ${{steps.get-previous-run-attempt.outputs.file_name}}
+            echo "${{steps.get-previous-run-attempt.outputs.file_name}}"
+            unzip "${{steps.get-previous-run-attempt.outputs.file_name}}"
 
       - name: Extract names of failed tests
         if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}

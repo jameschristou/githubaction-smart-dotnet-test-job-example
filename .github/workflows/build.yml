@@ -39,7 +39,7 @@ jobs:
       - name: Get name of previous test results archive
         id: get-name-of-previous-test-results-archive
         run:  |
-            file_name=TestSampleTests Test Results for Attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.zip
+            file_name="TestSampleTests Test Results for Attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.zip"
             echo "file_name=${{file_name}}" >> $GITHUB_OUTPUT
 
       - name: Download previous test results archive

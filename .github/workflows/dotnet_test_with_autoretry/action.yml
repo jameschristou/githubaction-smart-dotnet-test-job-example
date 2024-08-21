@@ -1,0 +1,16 @@
+name: "Dotnet Test With Auto Retry"
+description: "Runs dotnet test and retries failed tests once if there are less than 10 failed tests"
+inputs:
+  tests_filter:
+    description: "Argument to pass to --filter"
+    required: true
+  results_file_name:
+    description: "File name to save results to. Should be in the form prefix-attempt-runattempt.xml e.g. MyTestResults-attempt-2.xml"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Test SampleTests
+      shell: bash
+      run: |
+        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${tests_filter}" --verbosity normal '-l:trx;LogFileName=${results_file_name}'

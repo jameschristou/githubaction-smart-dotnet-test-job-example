@@ -92,8 +92,14 @@ jobs:
         shell: bash
 
       - name: Test SampleTests
-        run: |
-          dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{steps.update_test_filter.outputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=TestSampleTests-attempt-${{github.run_attempt}}.xml' # Eventually get TestSampleTests as input
+        uses: ./.github/workflows/dotnet_test_with_autoretry.yml
+        with:
+            tests_filter: ${{steps.update_test_filter.outputs.tests_filter}}
+            results_file_name: TestSampleTests-attempt-${{github.run_attempt}}.xml
+
+      # - name: Test SampleTests
+      #   run: |
+      #     dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{steps.update_test_filter.outputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=TestSampleTests-attempt-${{github.run_attempt}}.xml' # Eventually get TestSampleTests as input
 
       - name: Upload test results
         if: always()

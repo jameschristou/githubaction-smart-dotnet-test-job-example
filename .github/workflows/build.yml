@@ -56,22 +56,21 @@ jobs:
                     xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" -
 
             # xmllint doesn't properly support xml namespaces so in this case we just strip them out with sed
-            failed_tests=$(sed -e 's/xmlns="[^"]*"//g' \
+            sed -e 's/xmlns="[^"]*"//g' \
                     TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | \
-                    xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" -)
-
-            echo "failed_tests:${failed_tests}"
-            echo "failed_tests=$failed_tests" >> $GITHUB_OUTPUT
+                    xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" - | \
+                    tests.txt
 
       - name: Update test filter
         id: update_test_filter
         run: |
             tests_filter="Category!=Manual" # default if there's no failed tests from last attempt
 
-            echo "failed_tests:${{steps.extract_failed_tests.outputs.failed_tests}}"
+            first_line=$(head -n 1 "tests.txt")
+            echo "First line:$first_line"
 
             if [ "${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}" != "0" ] && \
-                [ "${{steps.extract_failed_tests.outputs.failed_tests}}" != "XPath set is empty" ]; then
+                [ "$first_line" != "XPath set is empty" ]; then
                 tests_filter=""
 
                 while IFS= read -r failed_test_line; do \
@@ -80,7 +79,7 @@ jobs:
                     failed_test=${failed_test::-1} # strip trailing "
 
                     tests_filter+="FullyQualifiedName=${failed_test}|"
-                done <<< '${{steps.extract_failed_tests.outputs.failed_tests}}'
+                done <<< tests.txt
 
                 tests_filter="${tests_filter%?}"  # Remove the trailing |
             fi

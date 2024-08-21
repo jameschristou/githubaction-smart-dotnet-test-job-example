@@ -95,15 +95,16 @@ jobs:
         uses: ./.github/actions/dotnet_test_with_autoretry
         with:
             tests_filter: ${{steps.update_test_filter.outputs.tests_filter}}
-            results_file_name: TestSampleTests-attempt-${{github.run_attempt}}.xml
+            test_results_file_name_prefix: TestSampleTests-attempt-${{github.run_attempt}}
+            test_results_artifact_name: TestSampleTests Test Results for Attempt-${{github.run_attempt}}
 
       # - name: Test SampleTests
       #   run: |
       #     dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{steps.update_test_filter.outputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=TestSampleTests-attempt-${{github.run_attempt}}.xml' # Eventually get TestSampleTests as input
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-            name: TestSampleTests Test Results for Attempt-${{github.run_attempt}} # Eventually get TestSampleTests as input. The action uses this name to search for the test results on rerun
-            path: ./SampleTests/TestResults/TestSampleTests-attempt-${{github.run_attempt}}.xml # Eventually get TestSampleTests as input
+      # - name: Upload test results
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #       name: TestSampleTests Test Results for Attempt-${{github.run_attempt}} # Eventually get TestSampleTests as input. The action uses this name to search for the test results on rerun
+      #       path: ./SampleTests/TestResults/TestSampleTests-attempt-${{github.run_attempt}}.xml # Eventually get TestSampleTests as input

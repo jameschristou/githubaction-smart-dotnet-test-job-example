@@ -4,8 +4,11 @@ inputs:
   tests_filter:
     description: "Argument to pass to --filter"
     required: true
-  results_file_name:
-    description: "File name to save results to. Should be in the form prefix-attempt-runattempt.xml e.g. MyTestResults-attempt-2.xml"
+  test_results_file_prefix:
+    description: "File name prefix to save results to. Should be in the form prefix-attempt-runattempt e.g. MyTestResults-attempt-2"
+    required: true
+  test_results_artifact_name:
+    description: "The name of the artifact to create for the test results"
     required: true
 runs:
   using: "composite"
@@ -13,4 +16,11 @@ runs:
     - name: Test SampleTests
       shell: bash
       run: |
-        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${tests_filter}" --verbosity normal '-l:trx;LogFileName=${results_file_name}'
+        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${tests_filter}" --verbosity normal '-l:trx;LogFileName=${test_results_file_name_prefix}.xml'
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${test_results_artifact_name} # Eventually get TestSampleTests as input. The action uses this name to search for the test results on rerun
+        path: ./SampleTests/TestResults/${results_file_prefix}.xml # Eventually get TestSampleTests as input

@@ -92,7 +92,7 @@ jobs:
         shell: bash
 
       - name: Test SampleTests
-        uses: ./.github/workflows/dotnet_test_with_autoretry.yml
+        uses: ./.github/actions/dotnet_test_with_autoretry
         with:
             tests_filter: ${{steps.update_test_filter.outputs.tests_filter}}
             results_file_name: TestSampleTests-attempt-${{github.run_attempt}}.xml

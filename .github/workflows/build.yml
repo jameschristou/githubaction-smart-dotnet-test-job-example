@@ -75,7 +75,7 @@ jobs:
 
                 while IFS= read -r failed_test_line; do \
                     echo "failed_test_line:$failed_test_line"
-                    failed_test=${failed_test_line:10} #strip testName=" from start of line
+                    failed_test=${failed_test_line:11} #strip testName=" from start of line
                     failed_test=${failed_test::-1} # strip trailing "
 
                     tests_filter+="FullyQualifiedName=${failed_test}|"

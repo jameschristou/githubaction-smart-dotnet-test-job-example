@@ -68,12 +68,14 @@ jobs:
         run: |
             tests_filter="Category!=Manual" # default if there's no failed tests from last attempt
 
+            echo "failed_tests:${{steps.extract_failed_tests.outputs.failed_tests}}"
+
             if [ "${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}" != "0" ] && \
                 [ "${{steps.extract_failed_tests.outputs.failed_tests}}" != "XPath set is empty" ]; then
                 tests_filter=""
 
                 while IFS= read -r failed_test_line; do \
-                    echo failed_test_line
+                    echo "failed_test_line:$failed_test_line"
                     failed_test=${failed_test_line:10} #strip testName=" from start of line
                     failed_test=${failed_test::-1} # strip trailing "
 

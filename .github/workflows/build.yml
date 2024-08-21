@@ -51,6 +51,10 @@ jobs:
             sudo apt-get update
             sudo apt-get install libxml2-utils
 
+            sed -e 's/xmlns="[^"]*"//g' \
+                    TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | \
+                    xmllint --xpath "string(//UnitTestResult[@outcome='Failed']/@testName)" -
+
             # xmllint doesn't properly support xml namespaces so in this case we just strip them out with sed
             failed_tests=$(sed -e 's/xmlns="[^"]*"//g' \
                     TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | \

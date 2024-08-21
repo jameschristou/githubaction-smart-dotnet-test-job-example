@@ -74,7 +74,7 @@ jobs:
 
                 for failed_test_line in $(echo '${{steps.extract_failed_tests.outputs.failed_tests}}'); do
                     echo "Test found: ${failed_test_line}"
-                    failed_test=${failed_test_line::10} #strip testName=" from start of line
+                    failed_test=${failed_test_line:10} #strip testName=" from start of line
                     failed_test=${failed_test::-1} # strip trailing "
 
                     tests_filter+="FullyQualifiedName=${failed_test}|"

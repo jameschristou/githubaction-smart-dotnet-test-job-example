@@ -33,8 +33,6 @@ jobs:
         id: get-name-of-previous-test-results-archive
         run:  |
             archive_name="TestSampleTests Test Results for Attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}"
-            echo "$(pwd)"
-            ls
             echo "archive_name=$archive_name" >> $GITHUB_OUTPUT
 
       # not only does this step download the archive, it also extracts the files from the archive so we end up with the test results XML in the working folder
@@ -46,35 +44,38 @@ jobs:
             name: ${{steps.get-name-of-previous-test-results-archive.outputs.archive_name}}
 
       - name: Extract names of failed tests
+        id: extract_failed_tests
         if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' && success() }}
+        continue-on-error: true # if we fail to process the XML results for whatever reason then we should just proceed anyway and try to run all tests again
         run:  |
             sudo apt-get update
             sudo apt-get install libxml2-utils
 
             # xmllint doesn't properly support xml namespaces so in this case we just strip them out with sed
-            sed -e 's/xmlns="[^"]*"//g' TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | xmllint --xpath "string(//UnitTestResult[@outcome='Failed']/@testName)" -
-            #xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml 2>/dev/null
+            failed_tests = $(sed -e 's/xmlns="[^"]*"//g' \
+                    TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | \
+                    xmllint --xpath "string(//UnitTestResult[@outcome='Failed']/@testName)" -)
+
+            echo "failed_tests:${failed_tests}"
+            echo "failed_tests=$failed_tests" >> $GITHUB_OUTPUT
 
       - name: Update test filter
         id: update_test_filter
         run: |
             tests_filter="Category!=Manual" # default if there's no failed tests from last attempt
 
-            if [ "${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}" != "0" ]; then
-                echo "there are failed tests from last run attempt to process"
-
+            if [ "${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}" != "0" ] && \
+                [ "${{steps.extract_failed_tests.outputs.failed_tests}}" != "XPath set is empty" ]; then
                 tests_filter=""
 
-                # loop through results from XML parse
-
-                # for failed_test in $(echo '${{steps.get_failed_tests.outputs.failed_tests}}' | jq -r '.[]'); do
-                #     echo "Test found: ${failed_test}"
-                #     tests_filter+="FullyQualifiedName=${failed_test}|"
-                # done
+                for failed_test in $(echo '${{steps.extract_failed_tests.outputs.failed_tests}}'); do
+                    echo "Test found: ${failed_test}"
+                    tests_filter+="FullyQualifiedName=${failed_test}|"
+                done
 
                 tests_filter="${tests_filter%?}"  # Remove the trailing |
             fi
-            
+
             echo "tests_filter:${tests_filter}"
             echo "tests_filter=$tests_filter" >> $GITHUB_OUTPUT
         shell: bash

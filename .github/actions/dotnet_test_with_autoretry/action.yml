@@ -4,7 +4,7 @@ inputs:
   tests_filter:
     description: "Argument to pass to --filter"
     required: true
-  test_results_file_prefix:
+  test_results_file_name_prefix:
     description: "File name prefix to save results to. Should be in the form prefix-attempt-runattempt e.g. MyTestResults-attempt-2"
     required: true
   test_results_artifact_name:
@@ -23,4 +23,4 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{inputs.test_results_artifact_name}} # Eventually get TestSampleTests as input. The action uses this name to search for the test results on rerun
-        path: ./SampleTests/TestResults/${{inputs.results_file_prefix}}.xml # Eventually get TestSampleTests as input
+        path: ./SampleTests/TestResults/${{inputs.test_results_file_name_prefix}}.xml # Eventually get TestSampleTests as input

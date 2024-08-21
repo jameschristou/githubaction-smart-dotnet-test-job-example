@@ -66,11 +66,12 @@ jobs:
         run: |
             tests_filter="Category!=Manual" # default if there's no failed tests from last attempt
 
-            first_line=$(head -n 1 "tests.txt")
-            echo "First line:$first_line"
+            if [ -f "tests.txt" ]; then
+                echo "File exists."
 
-            if [ "${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}" != "0" ] && \
-                [ "$first_line" != "XPath set is empty" ]; then
+                first_line=$(head -n 1 "tests.txt")
+                echo "First line:$first_line"
+
                 tests_filter=""
 
                 while IFS= read -r failed_test_line; do \

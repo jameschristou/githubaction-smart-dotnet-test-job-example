@@ -16,11 +16,11 @@ runs:
     - name: Test SampleTests
       shell: bash
       run: |
-        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${tests_filter}" --verbosity normal '-l:trx;LogFileName=${test_results_file_name_prefix}.xml'
+        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{tests_filter}}" --verbosity normal '-l:trx;LogFileName=${{test_results_file_name_prefix}}.xml'
 
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: ${test_results_artifact_name} # Eventually get TestSampleTests as input. The action uses this name to search for the test results on rerun
-        path: ./SampleTests/TestResults/${results_file_prefix}.xml # Eventually get TestSampleTests as input
+        name: ${{test_results_artifact_name}} # Eventually get TestSampleTests as input. The action uses this name to search for the test results on rerun
+        path: ./SampleTests/TestResults/${{results_file_prefix}}.xml # Eventually get TestSampleTests as input

@@ -75,7 +75,7 @@ jobs:
                     # check the number of failures. If its more than 10, then we just rerun the whole lot
                     number_of_lines=$(wc -l < "failed_tests.txt")
 
-                    if [$number_of_lines -lt 11]; then
+                    if [$(($number_of_lines)) -lt 11]; then
                         # reset the tests filter
                         tests_filter=""
 

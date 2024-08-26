@@ -16,7 +16,7 @@ runs:
     - name: Test SampleTests
       shell: bash
       run: |
-        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{inputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=${{inputs.test_results_file_name_prefix}}.xml'
+        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{inputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=${{inputs.test_results_file_name_prefix}}.xml' --RunConfiguration.TreatNoTestsAsError=true
 
     - name: Upload test results
       if: always()

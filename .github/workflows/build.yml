@@ -72,18 +72,23 @@ jobs:
                 first_line=$(head -n 1 "failed_tests.txt")
 
                 if [ "$first_line" != "XPath set is empty" ]; then
-                    # reset the tests filter
-                    tests_filter=""
+                    # check the number of failures. If its more than 10, then we just rerun the whole lot
+                    number_of_lines=$(wc -l < "failed_tests.txt")
 
-                    while IFS= read -r failed_test_line; do \
-                        echo "failed_test_line:$failed_test_line"
-                        failed_test=${failed_test_line:11} #strip testName=" from start of line
-                        failed_test=${failed_test::-1} # strip trailing "
+                    if [$number_of_lines -lt 11]; then
+                        # reset the tests filter
+                        tests_filter=""
 
-                        tests_filter+="FullyQualifiedName=${failed_test}|"
-                    done < failed_tests.txt
+                        while IFS= read -r failed_test_line; do \
+                            echo "failed_test_line:$failed_test_line"
+                            failed_test=${failed_test_line:11} #strip testName=" from start of line
+                            failed_test=${failed_test::-1} # strip trailing "
 
-                    tests_filter="${tests_filter%?}"  # Remove the trailing |
+                            tests_filter+="FullyQualifiedName=${failed_test}|"
+                        done < failed_tests.txt
+
+                        tests_filter="${tests_filter%?}"  # Remove the trailing |
+                    fi
                 fi
             fi
 

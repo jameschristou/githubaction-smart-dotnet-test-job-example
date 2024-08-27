@@ -63,7 +63,7 @@ jobs:
       - name: Update test filter
         id: update_test_filter
         run: |
-            tests_filter="Category!=Manual" # default if there's no failed tests from last attempt
+            tests_filter="Category=Group1" # default if there's no failed tests from last attempt
 
             # check that the file with failed tests exists
             if [ -f "failed_tests.txt" ]; then
@@ -79,10 +79,16 @@ jobs:
                         # reset the tests filter
                         tests_filter=""
 
+                        # beware any test names that have ellipses (···) - that means the xunit test runner has truncated the test name
+                        # in these cases we should rerun the full set of tests because we don't know how to rerun tests that are truncated
+
                         while IFS= read -r failed_test_line; do \
                             echo "failed_test_line:$failed_test_line"
                             failed_test=${failed_test_line:11} #strip testName=" from start of line
                             failed_test=${failed_test::-1} # strip trailing "
+
+                            # need to escape any () with \(\) this is important for tests with inline data
+                            # also in these cases we need to use displayname rather than fullyqualifiedname
 
                             tests_filter+="FullyQualifiedName=${failed_test}|"
                         done < failed_tests.txt

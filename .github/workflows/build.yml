@@ -96,7 +96,7 @@ jobs:
                             failed_test=${failed_test::-1} # strip trailing "
 
                             # need to replace XML quotes &quot; with "
-                            failed_test=$(echo "failed_test" | sed 's/&quot;/"/g')
+                            failed_test=$(echo "$failed_test" | sed 's/&quot;/"/g')
 
                             # need to escape any () with \(\) this is important for tests with inline data
                             # also in these cases we need to use displayname rather than fullyqualifiedname

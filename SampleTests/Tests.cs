@@ -69,8 +69,8 @@ namespace SampleTests
 
             var errorMessages = new List<string>()
             {
-                "This is an error that you would expect",
-                "This is a different error that you might expect"
+                "This is an error that you would expect. We are intentionally making this message really really long because it becomes part of the display name for the test and we want the total length to exceed 450 chars",
+                "This is a different error than you might expect. We are intentionally making this message really really long because it becomes part of the display name for the test and we want the total length to exceed 450 chars"
             };
 
             Assert.Equal(message, errorMessages[rnd.Next(inputModel.InputA)]);

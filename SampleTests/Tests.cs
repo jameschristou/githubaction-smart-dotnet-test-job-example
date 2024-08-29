@@ -76,7 +76,24 @@ namespace SampleTests
             Assert.Contains(errorMessages[rnd.Next(inputModel.InputA)], message);
         }
 
-        
+        [Trait("Category", "Group1")]
+        [Theory(DisplayName = "TestThatRandomlyFails8_WithARidiculouslyLongTestingNameThatWillExceedTheCharacterLimitAtWhichXUnitTruncatesTestDisplayName")]
+        [MemberData(nameof(InvalidInputReturnsErrorMessage))]
+        public void TestThatRandomlyFails8_WithARidiculouslyLongTestingNameThatWillExceedTheCharacterLimitAtWhichXUnitTruncatesTestDisplayName(InputModel inputModel, string message)
+        {
+            Random rnd = new Random();
+
+            var errorMessages = new List<string>()
+            {
+                "This is an error that you would expect.",
+                "This is a different error than you might expect.",
+                "This is a another error that you might expect"
+            };
+
+            Assert.Contains(errorMessages[rnd.Next(inputModel.InputA)], message);
+        }
+
+
         public static IEnumerable<object[]> InvalidInputReturnsErrorMessage()
         {
             yield return new object[]
@@ -95,6 +112,15 @@ namespace SampleTests
                     InputA = 2, InputB = false, InputC = true
                 },
                 "This is a different error than you might expect. We are intentionally making this message really really long because it becomes part of the display name for the test and we want the total length to exceed 450 chars"
+            };
+
+            yield return new object[]
+            {
+                new InputModel
+                {
+                    InputA = 3, InputB = false, InputC = true
+                },
+                "This is a another error that you might expect. We are intentionally making this message really really long because it becomes part of the display name for the test and we want the total length to exceed 450 chars"
             };
         }
 

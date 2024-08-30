@@ -60,26 +60,10 @@ namespace SampleTests
             Assert.Equal(start, rnd.Next(testNum));
         }
 
-        [Trait("Category", "Group1")]
+        [Trait("Category", "Group2")]
         [Theory]
         [MemberData(nameof(InvalidInputReturnsErrorMessage))]
         public void TestThatRandomlyFails7_WithARidiculouslyLongTestingNameThatWillExceedTheCharacterLimitAtWhichXUnitTruncatesTestDisplayName(InputModel inputModel, string message)
-        {
-            Random rnd = new Random();
-
-            var errorMessages = new List<string>()
-            {
-                "This is an error that you would expect.",
-                "This is a different error than you might expect."
-            };
-
-            Assert.Contains(errorMessages[rnd.Next(inputModel.InputA)], message);
-        }
-
-        [Trait("Category", "Group1")]
-        [Theory(DisplayName = "TestThatRandomlyFails8_WithARidiculouslyLongTestingNameThatWillExceedTheCharacterLimitAtWhichXUnitTruncatesTestDisplayName")]
-        [MemberData(nameof(InvalidInputReturnsErrorMessage))]
-        public void TestThatRandomlyFails8_WithARidiculouslyLongTestingNameThatWillExceedTheCharacterLimitAtWhichXUnitTruncatesTestDisplayName(InputModel inputModel, string message)
         {
             Random rnd = new Random();
 

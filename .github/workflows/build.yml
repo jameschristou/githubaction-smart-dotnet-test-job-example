@@ -114,7 +114,11 @@ jobs:
                             tests_filter+="${filter_type}=${failed_test}|"
                         done < failed_tests.txt
 
-                        tests_filter="${tests_filter%?}"  # Remove the trailing |
+                        last_char="${failed_test: -1}"
+                        if [[ "$last_char" == "|" ]]; then
+                            tests_filter="${tests_filter%?}"  # Remove the trailing |
+                        fi
+                        
                     fi
                 fi
             fi

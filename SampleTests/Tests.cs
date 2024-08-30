@@ -51,9 +51,9 @@ namespace SampleTests
 
         [Trait("Category", "Group1")]
         [Theory]
-        [InlineData(1, 2)]
-        [InlineData(2, 3)]
-        public void TestThatRandomlyFails6(int start, int testNum)
+        [InlineData(1, 2, "This is the expected message")]
+        [InlineData(2, 3, "This is the expected message")]
+        public void TestThatRandomlyFails6(int start, int testNum, string expectedMessage)
         {
             Random rnd = new Random();
 

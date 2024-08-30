@@ -83,11 +83,10 @@ jobs:
                         while IFS= read -r failed_test_line; do \
                             echo "failed_test_line:$failed_test_line"
 
-                            # beware any test names that have ellipses (···) - that means the xunit test runner has truncated the test name
+                            # beware any test names that have ellipses (...) - that means the xunit test runner has truncated the test name
                             # in these cases we should rerun the full set of tests because we don't know how to rerun tests that are truncated
-                            # there is potentially a workaround for this using https://github.com/xunit/xunit/issues/524
-                            # you can set the displayname on the test
-                            if [[ $failed_test == *"···"* ]]; then
+                            # max display name length is MaximumDisplayNameLength = 447;
+                            if [[ $failed_test == *"..."* ]]; then
                                 tests_filter="${default_test_filter}"
                                 break
                             fi
@@ -96,7 +95,7 @@ jobs:
                             failed_test=${failed_test::-1} # strip trailing "
 
                             # need to replace XML quotes &quot; with "" (double quotes needed to work on the command line)
-                            failed_test=$(echo "$failed_test" | sed 's/&quot;/""/g')
+                            failed_test=$(echo "$failed_test" | sed 's/&quot;/\"/g')
 
                             # need to escape any () with \(\) this is important for tests with inline data
                             # also in these cases we need to use displayname rather than fullyqualifiedname

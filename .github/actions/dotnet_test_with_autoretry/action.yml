@@ -71,6 +71,10 @@ runs:
                     TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | \
                     xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" - > failed_tests.txt
 
+            # sed -e 's/xmlns="[^"]*"//g' \
+            #         ${{inputs.test_results_file_name_prefix}}.xml | \
+            #         xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" - > failed_tests.txt
+
     - name: Get test filter
       id: get_test_filter
       shell: bash
@@ -79,7 +83,7 @@ runs:
         tests_filter="${default_test_filter}"
 
         # check that the file with failed tests exists
-        if [ -f "failed_tests.txt" ]; then
+        if [ -f "failed_tests.txt" ] && [ "${{steps.extract_failed_tests.conclusion}}" != "failure" ] then
             echo "File exists."
 
             first_line=$(head -n 1 "failed_tests.txt")

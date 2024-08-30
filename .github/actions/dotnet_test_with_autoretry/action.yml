@@ -51,6 +51,7 @@ runs:
         name: ${{steps.get-name-of-previous-test-results-archive.outputs.archive_name}}
 
     - name: Extract names of failed tests
+      shell: bash
       id: extract_failed_tests
       if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' && success() }}
       continue-on-error: true # if we fail to process the XML results for whatever reason then we should just proceed anyway and try to run all tests again

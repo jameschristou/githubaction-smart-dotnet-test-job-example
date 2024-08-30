@@ -66,72 +66,72 @@ jobs:
                     TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | \
                     xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" - > failed_tests.txt
 
-      - name: Update test filter
-        id: update_test_filter
-        run: |
-            default_test_filter="Category=Group1" # default if there's no failed tests from last attempt
-            tests_filter="${default_test_filter}"
+      # - name: Update test filter
+      #   id: update_test_filter
+      #   run: |
+      #       default_test_filter="Category=Group1" # default if there's no failed tests from last attempt
+      #       tests_filter="${default_test_filter}"
 
-            # check that the file with failed tests exists
-            if [ -f "failed_tests.txt" ]; then
-                echo "File exists."
+      #       # check that the file with failed tests exists
+      #       if [ -f "failed_tests.txt" ]; then
+      #           echo "File exists."
 
-                first_line=$(head -n 1 "failed_tests.txt")
+      #           first_line=$(head -n 1 "failed_tests.txt")
 
-                if [ "$first_line" != "XPath set is empty" ]; then
-                    # check the number of failures. If its more than 10, then we just rerun the whole lot
-                    number_of_lines=$(wc -l < "failed_tests.txt")
+      #           if [ "$first_line" != "XPath set is empty" ]; then
+      #               # check the number of failures. If its more than 10, then we just rerun the whole lot
+      #               number_of_lines=$(wc -l < "failed_tests.txt")
 
-                    if [ $(($number_of_lines)) -lt 11 ]; then
-                        # reset the tests filter
-                        tests_filter=""
+      #               if [ $(($number_of_lines)) -lt 11 ]; then
+      #                   # reset the tests filter
+      #                   tests_filter=""
 
-                        while IFS= read -r failed_test_line; do \
-                            echo "failed_test_line:$failed_test_line"
+      #                   while IFS= read -r failed_test_line; do \
+      #                       echo "failed_test_line:$failed_test_line"
 
-                            # beware any test names that have ellipses (...) - that means the xunit test runner has truncated the test name
-                            # in these cases we should rerun the full set of tests because we don't know how to rerun tests that are truncated
-                            # max display name length is MaximumDisplayNameLength = 447;
-                            if [[ $failed_test == *"..."* ]]; then
-                                tests_filter="${default_test_filter}"
-                                break
-                            fi
+      #                       # beware any test names that have ellipses (...) - that means the xunit test runner has truncated the test name
+      #                       # in these cases we should rerun the full set of tests because we don't know how to rerun tests that are truncated
+      #                       # max display name length is MaximumDisplayNameLength = 447;
+      #                       if [[ $failed_test == *"..."* ]]; then
+      #                           tests_filter="${default_test_filter}"
+      #                           break
+      #                       fi
 
-                            failed_test=${failed_test_line:11} #strip testName=" from start of line
-                            failed_test=${failed_test::-1} # strip trailing "
+      #                       failed_test=${failed_test_line:11} #strip testName=" from start of line
+      #                       failed_test=${failed_test::-1} # strip trailing "
 
-                            # need to replace XML quotes &quot; with "" (double quotes needed to work on the command line)
-                            failed_test=$(echo "$failed_test" | sed 's/&quot;/\"/g')
+      #                       # need to replace XML quotes &quot; with "" (double quotes needed to work on the command line)
+      #                       failed_test=$(echo "$failed_test" | sed 's/&quot;/\"/g')
 
-                            # need to escape any () with \(\) this is important for tests with inline data
-                            # also in these cases we need to use displayname rather than fullyqualifiedname
-                            filter_type="FullyQualifiedName"
+      #                       # need to escape any () with \(\) this is important for tests with inline data
+      #                       # also in these cases we need to use displayname rather than fullyqualifiedname
+      #                       filter_type="FullyQualifiedName"
 
-                            if [[ $failed_test == *"("* ]]; then
-                              echo "Found a parametrized test. We need to escape the ( and ) for dotnet test"
+      #                       if [[ $failed_test == *"("* ]]; then
+      #                         echo "Found a parametrized test. We need to escape the ( and ) for dotnet test"
 
-                              failed_test=$(echo "$failed_test" | sed 's/(/\\(/g')
-                              failed_test=$(echo "$failed_test" | sed 's/)/\\)/g')
+      #                         failed_test=$(echo "$failed_test" | sed 's/(/\\(/g')
+      #                         failed_test=$(echo "$failed_test" | sed 's/)/\\)/g')
 
-                              # for parametrized tests we need to use the DisplayName to filter
-                              filter_type="DisplayName"
-                            fi
+      #                         # for parametrized tests we need to use the DisplayName to filter
+      #                         filter_type="DisplayName"
+      #                       fi
 
-                            tests_filter+="${filter_type}=${failed_test}|"
-                        done < failed_tests.txt
+      #                       tests_filter+="${filter_type}=${failed_test}|"
+      #                   done < failed_tests.txt
 
-                        last_char="${failed_test: -1}"
-                        if [[ "$last_char" == "|" ]]; then
-                            tests_filter="${tests_filter%?}"  # Remove the trailing |
-                        fi
+      #                   last_char="${failed_test: -1}"
+      #                   if [[ "$last_char" == "|" ]]; then
+      #                       tests_filter="${tests_filter%?}"  # Remove the trailing |
+      #                   fi
                         
-                    fi
-                fi
-            fi
+      #               fi
+      #           fi
+      #       fi
 
-            echo "tests_filter:${tests_filter}"
-            echo "tests_filter=$tests_filter" >> $GITHUB_OUTPUT
-        shell: bash
+      #       echo "tests_filter:${tests_filter}"
+      #       echo "tests_filter=$tests_filter" >> $GITHUB_OUTPUT
+      #   shell: bash
 
       - name: Test SampleTests
         uses: ./.github/actions/dotnet_test_with_autoretry

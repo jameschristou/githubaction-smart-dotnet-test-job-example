@@ -107,8 +107,8 @@ runs:
                         failed_test=${failed_test_line:11} #strip testName=" from start of line
                         failed_test=${failed_test::-1} # strip trailing "
 
-                        # need to replace XML quotes &quot; with "" (double quotes needed to work on the command line)
-                        failed_test=$(echo "$failed_test" | sed 's/&quot;/\"/g')
+                        # need to replace XML quotes &quot; with \" (escaped quotes needed to work on the command line)
+                        failed_test=$(echo "$failed_test" | sed 's/&quot;/\\"/g')
 
                         # need to escape any () with \(\) this is important for tests with inline data
                         # also in these cases we need to use displayname rather than fullyqualifiedname

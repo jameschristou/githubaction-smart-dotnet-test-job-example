@@ -82,8 +82,10 @@ runs:
         default_test_filter=${{inputs.tests_filter}} # default if there's no failed tests from last attempt
         tests_filter="${default_test_filter}"
 
+        echo "Conclusion: ${{steps.extract_failed_tests.conclusion}}"
+
         # check that the file with failed tests exists
-        if [ -f "failed_tests.txt" ] && [ "${{steps.extract_failed_tests.conclusion}}" != "failure" ] then
+        if [ -f "failed_tests.txt" ] && [ ${{steps.extract_failed_tests.conclusion}} != "failure" ]; then
             echo "File exists."
 
             first_line=$(head -n 1 "failed_tests.txt")

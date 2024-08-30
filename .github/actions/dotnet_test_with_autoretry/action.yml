@@ -7,8 +7,8 @@ inputs:
   test_results_file_name_prefix:
     description: "File name prefix to save results to. Should be in the form prefix-attempt-runattempt e.g. MyTestResults-attempt-2"
     required: true
-  test_results_artifact_name:
-    description: "The name of the artifact to create for the test results"
+  test_results_artifact_name_prefix:
+    description: "The name of the artifact to create for the test results. Attempt number will be appended to this to make it unique across attempts"
     required: true
 runs:
   using: "composite"
@@ -35,20 +35,20 @@ runs:
             previous_run_attempt=$(($current_run_attempt - 1))
             echo "previous_run_attempt=$previous_run_attempt" >> $GITHUB_OUTPUT
 
-    - name: Get name of previous test results archive
+    - name: Get name of previous test results artifact
       shell: bash
-      id: get-name-of-previous-test-results-archive
+      id: get-name-of-previous-test-results-artifact
       run:  |
-            archive_name="TestSampleTests Test Results for Attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}"
-            echo "archive_name=$archive_name" >> $GITHUB_OUTPUT
+            artifact_name="${{inputs.test_results_artifact_name_prefix}} Attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}"
+            echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
 
-      # not only does this step download the archive, it also extracts the files from the archive so we end up with the test results XML in the working folder
-    - name: Download previous test results archive
+      # not only does this step download the artifact, it also extracts the files from the archive so we end up with the test results XML in the working folder
+    - name: Download previous test results artifact
       uses: actions/download-artifact@v4
       if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}
       continue-on-error: true # if we fail to download the archive for whatever reason then we should just proceed anyway and try to run all tests again
       with:
-        name: ${{steps.get-name-of-previous-test-results-archive.outputs.archive_name}}
+        name: ${{steps.get-name-of-previous-test-results-artifact.outputs.artifact_name}}
 
     - name: Extract names of failed tests
       shell: bash
@@ -139,9 +139,16 @@ runs:
       run: |
         dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{inputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=${{inputs.test_results_file_name_prefix}}.xml' -- RunConfiguration.TreatNoTestsAsError=true
 
+    - name: Get name of test results artifact
+      shell: bash
+      id: get-name-of-test-results-artifact
+      run:  |
+            artifact_name="${{inputs.test_results_artifact_name_prefix}} Attempt-${{github.run_attempt}}"
+            echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
+
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: ${{inputs.test_results_artifact_name}} # Eventually get TestSampleTests as input. The action uses this name to search for the test results on rerun
-        path: ./SampleTests/TestResults/${{inputs.test_results_file_name_prefix}}.xml # Eventually get TestSampleTests as input
+        name: ${{steps.get-name-of-test-results-artifact.outputs.artifact_name}}
+        path: ./SampleTests/TestResults/${{inputs.test_results_file_name_prefix}}.xml

@@ -14,8 +14,8 @@ jobs:
           uses: ./.github/actions/dotnet_test_with_autoretry
           with:
             tests_filter: Category=Group1
-            test_results_file_name_prefix: TestsGroup1-attempt-${{github.run_attempt}}
-            test_results_artifact_name: Test Results Group1 for Attempt-${{github.run_attempt}}
+            test_results_file_name_prefix: TestsGroup1TestResults
+            test_results_artifact_name: Test Results Group1
 
   testGroup2:
     name: RunTestsGroup2
@@ -27,6 +27,6 @@ jobs:
           uses: ./.github/actions/dotnet_test_with_autoretry
           with:
             tests_filter: Category=Group2
-            test_results_file_name_prefix: TestsGroup2-attempt-${{github.run_attempt}}
-            test_results_artifact_name: Test Results Group2 for Attempt-${{github.run_attempt}}
+            test_results_file_name_prefix: TestsGroup2TestResults
+            test_results_artifact_name: Test Results Group2
     

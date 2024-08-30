@@ -61,7 +61,6 @@ runs:
       shell: bash
       id: extract_failed_tests
       if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' && success() }}
-      continue-on-error: true # if we fail to process the XML results for whatever reason then we should just proceed anyway and try to run all tests again
       run:  |
             sudo apt-get update
             sudo apt-get install libxml2-utils
@@ -78,14 +77,13 @@ runs:
     - name: Get test filter
       id: get_test_filter
       shell: bash
+      if: always()
       run: |
         default_test_filter=${{inputs.tests_filter}} # default if there's no failed tests from last attempt
         tests_filter="${default_test_filter}"
 
-        echo "Conclusion: ${{steps.extract_failed_tests.conclusion}}"
-
         # check that the file with failed tests exists
-        if [ -f "failed_tests.txt" ] && [ ${{steps.extract_failed_tests.conclusion}} != "failure" ]; then
+        if [ -f "failed_tests.txt" ] && [ ${{steps.extract_failed_tests.conclusion}} == "success" ]; then
             echo "File exists."
 
             first_line=$(head -n 1 "failed_tests.txt")
@@ -132,7 +130,7 @@ runs:
                         tests_filter+="${filter_type}=${failed_test}|"
                     done < failed_tests.txt
 
-                    last_char="${failed_test: -1}"
+                    last_char="${tests_filter: -1}"
                     if [[ "$last_char" == "|" ]]; then
                         tests_filter="${tests_filter%?}"  # Remove the trailing |
                     fi

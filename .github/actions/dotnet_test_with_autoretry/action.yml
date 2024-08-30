@@ -42,6 +42,13 @@ runs:
             artifact_name="${{inputs.test_results_artifact_name_prefix}} Attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}"
             echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
 
+    - name: Get name of test results artifact
+      shell: bash
+      id: get-name-of-test-results-artifact
+      run:  |
+            artifact_name="${{inputs.test_results_artifact_name_prefix}} Attempt-${{github.run_attempt}}"
+            echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
+
       # not only does this step download the artifact, it also extracts the files from the archive so we end up with the test results XML in the working folder
     - name: Download previous test results artifact
       uses: actions/download-artifact@v4
@@ -59,17 +66,13 @@ runs:
             sudo apt-get update
             sudo apt-get install libxml2-utils
 
-            sed -e 's/xmlns="[^"]*"//g' \
-                    TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | \
-                    xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" -
-
             # xmllint doesn't properly support xml namespaces so in this case we just strip them out with sed
             sed -e 's/xmlns="[^"]*"//g' \
                     TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | \
                     xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" - > failed_tests.txt
 
-    - name: Update test filter
-      id: update_test_filter
+    - name: Get test filter
+      id: get_test_filter
       shell: bash
       run: |
         default_test_filter=${{inputs.tests_filter}} # default if there's no failed tests from last attempt
@@ -137,14 +140,7 @@ runs:
     - name: Test SampleTests
       shell: bash
       run: |
-        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{inputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=${{inputs.test_results_file_name_prefix}}.xml' -- RunConfiguration.TreatNoTestsAsError=true
-
-    - name: Get name of test results artifact
-      shell: bash
-      id: get-name-of-test-results-artifact
-      run:  |
-            artifact_name="${{inputs.test_results_artifact_name_prefix}} Attempt-${{github.run_attempt}}"
-            echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
+        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{steps.get_test_filter.outputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=${{inputs.test_results_file_name_prefix}}.xml' -- RunConfiguration.TreatNoTestsAsError=true
 
     - name: Upload test results
       if: always()

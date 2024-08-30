@@ -99,7 +99,7 @@ runs:
                         # beware any test names that have ellipses (...) - that means the xunit test runner has truncated the test name
                         # in these cases we should rerun the full set of tests because we don't know how to rerun tests that are truncated
                         # max display name length is MaximumDisplayNameLength = 447;
-                        if [[ $failed_test == *"..."* ]]; then
+                        if [[ $failed_test_line == *"..."* ]]; then
                             tests_filter="${default_test_filter}"
                             break
                         fi

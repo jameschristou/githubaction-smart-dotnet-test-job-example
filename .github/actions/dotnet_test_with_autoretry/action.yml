@@ -68,12 +68,8 @@ runs:
 
             # xmllint doesn't properly support xml namespaces so in this case we just strip them out with sed
             sed -e 's/xmlns="[^"]*"//g' \
-                    TestSampleTests-attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}.xml | \
+                    ${{inputs.test_results_file_name_prefix}}.xml | \
                     xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" - > failed_tests.txt
-
-            # sed -e 's/xmlns="[^"]*"//g' \
-            #         ${{inputs.test_results_file_name_prefix}}.xml | \
-            #         xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" - > failed_tests.txt
 
     - name: Get test filter
       id: get_test_filter

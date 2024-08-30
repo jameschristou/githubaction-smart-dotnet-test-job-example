@@ -8,25 +8,27 @@ jobs:
     name: RunTestsGroup1
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout
+        - name: Checkout actions
           uses: actions/checkout@v4
+
         - name: Test SampleTests
           uses: ./.github/actions/dotnet_test_with_autoretry
           with:
             tests_filter: Category=Group1
             test_results_file_name_prefix: TestsGroup1TestResults
-            test_results_artifact_name: Test Results Group1
+            test_results_artifact_name_prefix: Test Results Group1
 
   testGroup2:
     name: RunTestsGroup2
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout
+        - name: Checkout actions
           uses: actions/checkout@v4
+
         - name: Test SampleTests
           uses: ./.github/actions/dotnet_test_with_autoretry
           with:
             tests_filter: Category=Group2
             test_results_file_name_prefix: TestsGroup2TestResults
-            test_results_artifact_name: Test Results Group2
+            test_results_artifact_name_prefix: Test Results Group2
     

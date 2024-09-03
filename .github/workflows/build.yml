@@ -31,4 +31,18 @@ jobs:
             tests_filter: Category=Group2
             test_results_file_name_prefix: TestsGroup2TestResults
             test_results_artifact_name_prefix: Test Results Group2
+
+  testGroup3:
+    name: RunTestsGroup3
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout actions
+          uses: actions/checkout@v4
+
+        - name: Test SampleTests
+          uses: ./.github/actions/dotnet_test_with_autoretry
+          with:
+            tests_filter: Category!=Group1&Category!=Group2
+            test_results_file_name_prefix: TestsGroup3TestResults
+            test_results_artifact_name_prefix: Test Results Group3
     

@@ -60,6 +60,12 @@ namespace SampleTests
             Assert.Equal(start, rnd.Next(testNum));
         }
 
+        [Fact]
+        public void TestThatAlwaysPasses()
+        {
+            Assert.True(true);
+        }
+
         [Trait("Category", "Group2")]
         [Theory]
         [MemberData(nameof(InvalidInputReturnsErrorMessage))]

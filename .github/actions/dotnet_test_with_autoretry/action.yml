@@ -75,7 +75,7 @@ runs:
       id: get_test_filter
       shell: bash
       run: |
-        default_test_filter="${inputs.tests_filter}" # default if there's no failed tests from last attempt
+        default_test_filter="${{inputs.tests_filter}}" # default if there's no failed tests from last attempt
         tests_filter="${default_test_filter}"
 
         # check that the file with failed tests exists and the outcome of the previous step (extracting XML file was success)

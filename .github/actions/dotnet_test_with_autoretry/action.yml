@@ -63,8 +63,8 @@ runs:
       continue-on-error: true
       if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' && success() }}
       run:  |
-            sudo apt-get update
-            sudo apt-get install libxml2-utils
+            sudo apt-get -y update
+            sudo apt-get -y install libxml2-utils
 
             # xmllint doesn't properly support xml namespaces so in this case we just strip them out with sed
             sed -e 's/xmlns="[^"]*"//g' \

@@ -10,8 +10,9 @@ This is handy if you have flaky tests. You should fix the flaky tests but until 
 * Finally, the test results XML are uploaded to the run artifacts. The artifact name uses the run attempt number so that it doesn't overwrite the test results from any previous run attempt.
 
 ## Possible Enhancements
+* Add unit tests using https://github.com/pgrange/bash_unit
 * One enhancement would be to automatically rerun the failed tests at least once. If the tests are genuinely flaky then this might help. However this might not be desirable in every situation, especially if the failure is legitimate.
 * [Job summaries](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#adding-a-job-summary)
 
-## Bugs
-* Not currently working with parametrised tests (will need to support inlinedata by escaping the `()` characters when processing the test name)
+## Not Supported
+* Dealing with really long test names. For example a test that is parametrized with many parameters. The xunit runner seems to truncate the test name at 447 characters which makes longer test names not replayable

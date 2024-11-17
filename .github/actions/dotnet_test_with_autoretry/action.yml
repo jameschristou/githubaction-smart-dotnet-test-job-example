@@ -96,7 +96,7 @@ runs:
                     while IFS= read -r failed_test_line; do \
                         echo "failed_test_line:$failed_test_line"
 
-                        # beware any test names that have ellipses (···) - that means the xunit test runner has truncated the test name
+                        # beware any test names that have ellipses (··· or ...) - that means the xunit test runner has truncated the test name
                         # in these cases we should rerun the full set of tests because we don't know how to rerun tests that are truncated
                         # max display name length is MaximumDisplayNameLength = 447;
                         if [[ $failed_test_line == *"···"* ]]; then
@@ -146,7 +146,7 @@ runs:
     - name: Test SampleTests
       shell: bash
       run: |
-        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{steps.get_test_filter.outputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=${{inputs.test_results_file_name_prefix}}.xml' -- RunConfiguration.TreatNoTestsAsError=true
+        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter '${{steps.get_test_filter.outputs.tests_filter}}' --verbosity normal '-l:trx;LogFileName=${{inputs.test_results_file_name_prefix}}.xml' -- RunConfiguration.TreatNoTestsAsError=true
 
     - name: Upload test results
       if: always()

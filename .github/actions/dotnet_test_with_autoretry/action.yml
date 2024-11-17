@@ -104,6 +104,11 @@ runs:
                             break
                         fi
 
+                        if [[ $failed_test_line == *"..."* ]]; then
+                            tests_filter="${default_test_filter}"
+                            break
+                        fi
+
                         failed_test=${failed_test_line:11} #strip testName=" from start of line
                         failed_test=${failed_test::-1} # strip trailing "
 

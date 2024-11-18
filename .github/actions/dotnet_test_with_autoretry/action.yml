@@ -57,11 +57,28 @@ runs:
       with:
         name: ${{steps.get-name-of-previous-test-results-artifact.outputs.artifact_name}}
 
+    - name: Check for tests not run
+      shell: bash
+      id: check-for-tests-not-run
+      continue-on-error: true
+      if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' && success() }}
+      run:  |
+            # we want to make sure that all the tests passed into the filter on previous run were actually 
+            # run. If we see the line "No test matches the given testcase filter" in the output then this means one of the filters 
+            # didn't work and we didn't run all the required tests. So now we should run all the tests
+            tests_not_run="0"
+
+            if grep -q "No test matches the given testcase filter" ${{inputs.test_results_file_name_prefix}}.xml; then
+                tests_not_run="1"
+            fi
+
+            echo "tests_not_run=$tests_not_run" >> $GITHUB_OUTPUT
+
     - name: Extract names of failed tests
       shell: bash
       id: extract_failed_tests
       continue-on-error: true
-      if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' && success() }}
+      if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' && steps.check-for-tests-not-run.outputs.tests_not_run == '0' && success() }}
       run:  |
             sudo apt-get -y update
             sudo apt-get -y install libxml2-utils
@@ -80,8 +97,8 @@ runs:
 
         # check that the file with failed tests exists and the outcome of the previous step (extracting XML file was success)
         # the outcome check is important in the case where the previous step failed and bad output went into failed_tests.txt
-        if [ -f "failed_tests.txt" ] && [ ${{steps.extract_failed_tests.outcome}} == "success" ]; then
-            echo "File exists."
+        if [ -f "failed_tests.txt" ] && [ ${{steps.check-for-tests-not-run.outputs.tests_not_run}} == "0" ] && [ ${{steps.extract_failed_tests.outcome}} == "success" ]; then
+            echo "Failed tests file exists."
 
             first_line=$(head -n 1 "failed_tests.txt")
 
@@ -141,7 +158,7 @@ runs:
     - name: Test SampleTests
       shell: bash
       run: |
-        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter '${{steps.get_test_filter.outputs.tests_filter}}' --verbosity normal '-l:trx;LogFileName=${{inputs.test_results_file_name_prefix}}.xml' -- RunConfiguration.TreatNoTestsAsError=true
+        dotnet test ./SampleTests/SampleTests.csproj --configuration Release --no-restore --no-build --filter "${{steps.get_test_filter.outputs.tests_filter}}" --verbosity normal '-l:trx;LogFileName=${{inputs.test_results_file_name_prefix}}.xml' -- RunConfiguration.TreatNoTestsAsError=true
 
     - name: Upload test results
       if: always()
@@ -149,3 +166,16 @@ runs:
       with:
         name: ${{steps.get-name-of-test-results-artifact.outputs.artifact_name}}
         path: ./SampleTests/TestResults/${{inputs.test_results_file_name_prefix}}.xml
+
+    - name: Check for unrunnable tests
+      if: always()
+      shell: bash
+      run: |
+        # we basically want to make sure that if we set the filter, all the tests passed into the filter to be rerun were actually 
+        # run. If we see the line "No test matches the given testcase filter" in the output then this means one of the filters 
+        # didn't work and we didn't run all the required tests. Then we should fail the job. On next rerun, we'll see this message
+        # and just run all tests
+        if grep -q "No test matches the given testcase filter" ./SampleTests/TestResults/${{inputs.test_results_file_name_prefix}}.xml; then
+            # mark the job as failed
+            exit 1;
+        fi

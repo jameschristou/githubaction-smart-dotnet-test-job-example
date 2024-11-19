@@ -38,6 +38,7 @@ runs:
     - name: Get name of previous test results artifact
       shell: bash
       id: get-name-of-previous-test-results-artifact
+      if: ${{ steps.get-previous-run-attempt.outputs.previous_run_attempt != '0' }}
       run:  |
             artifact_name="${{inputs.test_results_artifact_name_prefix}} Attempt-${{steps.get-previous-run-attempt.outputs.previous_run_attempt}}"
             echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT

@@ -88,6 +88,7 @@ runs:
             sed -e 's/xmlns="[^"]*"//g' \
                     ${{inputs.test_results_file_name_prefix}}.xml | \
                     xmllint --xpath "//UnitTestResult[@outcome='Failed']/@testName" - > failed_tests.txt
+            exit 1;
 
     - name: Get test filter
       id: get_test_filter
@@ -98,7 +99,7 @@ runs:
 
         # check that the file with failed tests exists and the outcome of the previous step (extracting XML file was success)
         # the outcome check is important in the case where the previous step failed and bad output went into failed_tests.txt
-        if [ -f "failed_tests.txt" ] && [ ${{steps.check-for-tests-not-run.outputs.tests_not_run}} == "0" ] && [ ${{steps.extract_failed_tests.outcome}} == "success" ]; then
+        if [ -f "failed_tests.txt" ] && [ ${{steps.check-for-tests-not-run.outputs.tests_not_run}} == "0" ]; then
             echo "Failed tests file exists."
 
             first_line=$(head -n 1 "failed_tests.txt")

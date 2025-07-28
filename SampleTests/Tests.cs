@@ -121,4 +121,22 @@ namespace SampleTests
             public bool InputC { get; set; }
         }
     }
+
+    [Trait("Category", "Group3")]
+    public class MoreTests
+    {
+        [Trait("Category", "Group4")]
+        [Fact]
+        public void TestThatAlwaysPasses()
+        {
+            Assert.True(true);
+        }
+
+        
+        [Fact]
+        public void TestThatAlwaysPasses2()
+        {
+            Assert.True(true);
+        }
+    }
 }
